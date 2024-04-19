@@ -83,7 +83,6 @@ namespace SimpleECS
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public override int GetHashCode() =>
-            System.HashCode.Combine(_max, _size, _dense, _sparse, Count);
+        public override int GetHashCode() => HashCode.Combine(_max, _size, _dense, _sparse, Count);
     }
 }

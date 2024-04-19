@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace SimpleECS
+﻿namespace SimpleECS
 {
     public class Registry(uint maxEntities)
     {
@@ -12,13 +10,13 @@ namespace SimpleECS
         {
             public int HashCode = _hashCode;
             public SparseSet Entities = new(_registry._maxEntities);
-            IComponentStore[] componentStores = _components;
+            IComponentStore[] _componentStores = _components;
 
             internal void OnEntityAdded(uint entityId)
             {
                 if (!Entities.Contains(entityId))
                 {
-                    foreach (var store in componentStores)
+                    foreach (var store in _componentStores)
                         if (!store.Contains(entityId))
                             return;
                     Entities.Add(entityId);
