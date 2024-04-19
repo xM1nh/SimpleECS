@@ -4,16 +4,16 @@ namespace SimpleECS
 {
     public struct Group : IEnumerable<uint>
     {
-        Registry registry;
-        Registry.GroupData groupData;
+        Registry _registry;
+        Registry.GroupData _groupData;
 
         internal Group(Registry registry, Registry.GroupData groupData)
         {
-            this.registry = registry;
-            this.groupData = groupData;
+            _registry = registry;
+            _groupData = groupData;
         }
 
-        public IEnumerator<uint> GetEnumerator() => groupData.Entities.GetEnumerator();
+        public IEnumerator<uint> GetEnumerator() => _groupData.Entities.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

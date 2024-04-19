@@ -4,9 +4,9 @@ namespace SimpleECS
 {
     public struct View<T>(Registry registry) : IEnumerable<uint>
     {
-        Registry registry = registry;
+        Registry _registry = registry;
 
-        public IEnumerator<uint> GetEnumerator() => registry.Assure<T>().Set.GetEnumerator();
+        public IEnumerator<uint> GetEnumerator() => _registry.Assure<T>().Set.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
@@ -15,47 +15,47 @@ namespace SimpleECS
     {
         struct Enumerator : IEnumerator<uint>
         {
-            Registry registry;
-            IComponentStore store;
-            IEnumerator<uint> setEnumerator;
+            Registry _registry;
+            IComponentStore _store;
+            IEnumerator<uint> _setEnumerator;
 
             public Enumerator(Registry registry)
             {
-                this.registry = registry;
+                _registry = registry;
                 var store1 = registry.Assure<T>();
                 var store2 = registry.Assure<U>();
 
                 if (store1.Count > store2.Count)
                 {
-                    setEnumerator = store2.Entities.GetEnumerator();
-                    store = store1;
+                    _setEnumerator = store2.Entities.GetEnumerator();
+                    _store = store1;
                 }
                 else
                 {
-                    setEnumerator = store1.Entities.GetEnumerator();
-                    store = store2;
+                    _setEnumerator = store1.Entities.GetEnumerator();
+                    _store = store2;
                 }
             }
 
-            public uint Current => setEnumerator.Current;
+            public uint Current => _setEnumerator.Current;
 
-            object IEnumerator.Current => setEnumerator.Current;
+            object IEnumerator.Current => _setEnumerator.Current;
 
             public void Dispose() { }
 
             public bool MoveNext()
             {
-                while (setEnumerator.MoveNext())
+                while (_setEnumerator.MoveNext())
                 {
-                    var entityId = setEnumerator.Current;
-                    if (!store.Contains(entityId))
+                    var entityId = _setEnumerator.Current;
+                    if (!_store.Contains(entityId))
                         continue;
                     return true;
                 }
                 return false;
             }
 
-            public void Reset() => setEnumerator.Reset();
+            public void Reset() => _setEnumerator.Reset();
         }
 
         Registry registry = registry;

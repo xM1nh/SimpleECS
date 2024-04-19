@@ -2,13 +2,13 @@
 {
     public interface IComponentStore
     {
-        public bool Contains(uint entityId);
+        bool Contains(uint entityId);
 
         void RemoveIfContains(Entity entity) => RemoveIfContains(entity.Id);
 
         void RemoveIfContains(uint entityId);
 
-        public SparseSet Entities { get; }
+        SparseSet Entities { get; }
     }
 
     public class ComponentStore<T>(uint maxComponents) : IComponentStore
@@ -18,18 +18,18 @@
 
         public SparseSet Set = new(maxComponents);
         public SparseSet Entities => Set;
-        T[] instances = new T[maxComponents];
+        T[] _instances = new T[maxComponents];
 
         public uint Count => Set.Count;
 
         public void Add(Entity entity, T value)
         {
             Set.Add(entity.Id);
-            instances[Set.Index(entity.Id)] = value;
+            _instances[Set.Index(entity.Id)] = value;
             OnAdd?.Invoke(entity.Id);
         }
 
-        public ref T Get(uint entityId) => ref instances[Set.Index(entityId)];
+        public ref T Get(uint entityId) => ref _instances[Set.Index(entityId)];
 
         public bool Contains(uint entityId) => Set.Contains(entityId);
 

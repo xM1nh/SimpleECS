@@ -5,14 +5,14 @@ namespace SimpleECS
     public class Registry(uint maxEntities)
     {
         internal class GroupData(
-            Registry registry,
-            int hashCode,
-            params IComponentStore[] components
+            Registry _registry,
+            int _hashCode,
+            params IComponentStore[] _components
         )
         {
-            public int HashCode = hashCode;
-            public SparseSet Entities = new(registry.maxEntities);
-            IComponentStore[] componentStores = components;
+            public int HashCode = _hashCode;
+            public SparseSet Entities = new(_registry._maxEntities);
+            IComponentStore[] componentStores = _components;
 
             internal void OnEntityAdded(uint entityId)
             {
@@ -32,27 +32,27 @@ namespace SimpleECS
             }
         }
 
-        readonly uint maxEntities = maxEntities;
-        Dictionary<Type, IComponentStore> data = [];
-        uint nextEntity = 0;
-        List<GroupData> Groups = [];
+        readonly uint _maxEntities = maxEntities;
+        Dictionary<Type, IComponentStore> _data = [];
+        uint _nextEntity = 0;
+        List<GroupData> _groups = [];
 
         public ComponentStore<T> Assure<T>()
         {
             var type = typeof(T);
-            if (data.TryGetValue(type, out var store))
-                return (ComponentStore<T>)data[type];
+            if (_data.TryGetValue(type, out var store))
+                return (ComponentStore<T>)_data[type];
 
-            var newStore = new ComponentStore<T>(maxEntities);
-            data[type] = newStore;
+            var newStore = new ComponentStore<T>(_maxEntities);
+            _data[type] = newStore;
             return newStore;
         }
 
-        public Entity Create() => new(nextEntity++);
+        public Entity Create() => new(_nextEntity++);
 
         public void Destroy(Entity entity)
         {
-            foreach (var store in data.Values)
+            foreach (var store in _data.Values)
                 store.RemoveIfContains(entity.Id);
         }
 
@@ -85,12 +85,12 @@ namespace SimpleECS
         {
             var hash = System.HashCode.Combine(typeof(T), typeof(U));
 
-            foreach (var group in Groups)
+            foreach (var group in _groups)
                 if (group.HashCode == hash)
                     return new Group(this, group);
 
             var groupData = new GroupData(this, hash, Assure<T>(), Assure<U>());
-            Groups.Add(groupData);
+            _groups.Add(groupData);
 
             Assure<T>().OnAdd += groupData.OnEntityAdded;
             Assure<U>().OnAdd += groupData.OnEntityAdded;
@@ -108,12 +108,12 @@ namespace SimpleECS
         {
             var hash = System.HashCode.Combine(typeof(T), typeof(U), typeof(V));
 
-            foreach (var group in Groups)
+            foreach (var group in _groups)
                 if (group.HashCode == hash)
                     return new Group(this, group);
 
             var groupData = new GroupData(this, hash, Assure<T>(), Assure<U>(), Assure<V>());
-            Groups.Add(groupData);
+            _groups.Add(groupData);
 
             Assure<T>().OnAdd += groupData.OnEntityAdded;
             Assure<U>().OnAdd += groupData.OnEntityAdded;

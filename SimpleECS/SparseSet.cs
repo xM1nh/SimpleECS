@@ -6,54 +6,54 @@ namespace SimpleECS
     {
         struct Enumerator(uint[] dense, uint size) : IEnumerator<uint>
         {
-            uint[] dense = dense;
-            uint size = size;
-            uint current = 0;
-            uint next = 0;
+            uint[] _dense = dense;
+            uint _size = size;
+            uint _current = 0;
+            uint _next = 0;
 
-            public uint Current => current;
+            public uint Current => _current;
 
-            object IEnumerator.Current => current;
+            object IEnumerator.Current => _current;
 
             public void Dispose() { }
 
             public bool MoveNext()
             {
-                if (next < size)
+                if (_next < _size)
                 {
-                    current = dense[next];
-                    next++;
+                    _current = _dense[_next];
+                    _next++;
                     return true;
                 }
 
                 return false;
             }
 
-            public void Reset() => next = 0;
+            public void Reset() => _next = 0;
         }
 
-        readonly uint max;
-        uint size;
-        uint[] dense;
-        uint[] sparse;
+        readonly uint _max;
+        uint _size;
+        uint[] _dense;
+        uint[] _sparse;
 
-        public uint Count => size;
+        public uint Count => _size;
 
         public SparseSet(uint maxValue)
         {
-            max = maxValue + 1;
-            size = 0;
-            dense = new uint[max];
-            sparse = new uint[max];
+            _max = maxValue + 1;
+            _size = 0;
+            _dense = new uint[_max];
+            _sparse = new uint[_max];
         }
 
         public void Add(uint value)
         {
-            if (value >= 0 && value < max && !Contains(value))
+            if (value >= 0 && value < _max && !Contains(value))
             {
-                dense[size] = value;
-                sparse[value] = size;
-                size++;
+                _dense[_size] = value;
+                _sparse[value] = _size;
+                _size++;
             }
         }
 
@@ -61,29 +61,29 @@ namespace SimpleECS
         {
             if (Contains(value))
             {
-                dense[sparse[value]] = dense[size - 1];
-                sparse[dense[size - 1]] = sparse[value];
-                size--;
+                _dense[_sparse[value]] = _dense[_size - 1];
+                _sparse[_dense[_size - 1]] = _sparse[value];
+                _size--;
             }
         }
 
-        public uint Index(uint value) => dense[value];
+        public uint Index(uint value) => _dense[value];
 
         public bool Contains(uint value)
         {
-            if (value >= max || value < 0)
+            if (value >= _max || value < 0)
                 return false;
             else
-                return sparse[value] < size && dense[sparse[value]] == value;
+                return _sparse[value] < _size && _dense[_sparse[value]] == value;
         }
 
-        public void Clear() => size = 0;
+        public void Clear() => _size = 0;
 
-        public IEnumerator<uint> GetEnumerator() => new Enumerator(this.dense, size);
+        public IEnumerator<uint> GetEnumerator() => new Enumerator(this._dense, _size);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public override int GetHashCode() =>
-            System.HashCode.Combine(max, size, dense, sparse, Count);
+            System.HashCode.Combine(_max, _size, _dense, _sparse, Count);
     }
 }
